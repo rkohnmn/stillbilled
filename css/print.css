@@ -1,0 +1,9 @@
+@page { margin: 1.5cm; }
+body { background: #fff; color: #000; font-size: 11pt; }
+.masthead, .start, .toolbar, .list-controls, .row-decide, .row-chevron, .info, .site-footer, .toast, .skip-link, .dialog, .row-body, .files-section, .plan .btn { display: none !important; }
+.results { padding: 0; width: 100%; }
+.row { break-inside: avoid; grid-template-columns: 2.5rem 1fr auto; grid-template-areas: "mark main figures" "mark main year"; }
+.row-main { cursor: auto; }
+.row-meta, .row-year-value, .section-note { color: #333; }
+.bar { display: none; }
+a { color: #000; }

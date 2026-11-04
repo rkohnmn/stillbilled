@@ -1,0 +1,129 @@
+/* Design tokens. Colours were checked in both themes: body text and the main
+   interface colours against their surfaces (WCAG AA), and the two chart marks
+   (blue data, red flag) with the dataviz palette validator, because a green
+   and red pair would fail for people with red-green colour blindness. */
+
+@font-face {
+  font-family: "Zilla Slab";
+  src: url("../assets/fonts/zilla-slab-latin-600-normal.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Public Sans";
+  src: url("../assets/fonts/public-sans-latin-wght-normal.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Ledger-pad light theme: pale green paper, dark green ink, red pen for what needs a look. */
+  --paper: #f1f5ec;
+  --sheet: #fafcf7;
+  --sunk: #e4ece0;
+  --ink: #17261e;
+  --ink-2: #46564b;
+  --ink-3: #5b6b60;
+  --rule: #c9d5c6;
+  --rule-strong: #9fb09e;
+  --control: #7a8d7e;
+  --primary: #1e5b43;
+  --primary-hover: #174a37;
+  --primary-ink: #ffffff;
+  --pen: #b42336;
+  --pen-mark: #b42336;
+  --pen-soft: #f8e6e8;
+  --amber: #7d5200;
+  --amber-soft: #f6ecd3;
+  --mark: #3a6ea5;
+  --mark-soft: #e2ecf6;
+  --mark-ink: #234a73;
+  --focus: #1d4ed8;
+  --margin-line: color-mix(in srgb, var(--pen) 40%, transparent);
+  --scrim: rgb(10 18 13 / 0.55);
+  --shadow: 0 1px 0 rgb(23 38 30 / 0.04), 0 8px 24px -12px rgb(23 38 30 / 0.25);
+
+  --font-display: "Zilla Slab", Rockwell, "Roboto Slab", Georgia, serif;
+  --font-body: "Public Sans", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+
+  --step--1: 0.875rem;
+  --step-0: 1rem;
+  --step-1: 1.125rem;
+  --step-2: 1.375rem;
+  --step-3: clamp(1.625rem, 1.25rem + 1.2vw, 2.125rem);
+  --step-4: clamp(2.25rem, 1.5rem + 3vw, 3.5rem);
+  --step-5: clamp(2.5rem, 1.4rem + 4.6vw, 4.5rem);
+
+  --s-1: 0.25rem;
+  --s-2: 0.5rem;
+  --s-3: 0.75rem;
+  --s-4: 1rem;
+  --s-5: 1.5rem;
+  --s-6: 2rem;
+  --s-7: 3rem;
+  --s-8: 4.5rem;
+
+  --radius: 8px;
+  --radius-lg: 12px;
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --measure: 66ch;
+  --margin-col: 3.25rem;
+}
+
+:root { color-scheme: light dark; }
+:root[data-theme="light"] { color-scheme: light; }
+:root[data-theme="dark"] { color-scheme: dark; }
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #101713;
+    --sheet: #17211b;
+    --sunk: #0c120f;
+    --ink: #e6eee6;
+    --ink-2: #b0bfb3;
+    --ink-3: #8fa093;
+    --rule: #2c3a31;
+    --rule-strong: #56695b;
+    --control: #687d70;
+    --primary: #74c7a0;
+    --primary-hover: #8ad4b1;
+    --primary-ink: #0b1510;
+    --pen: #ff8a98;
+    --pen-mark: #e85a6c;
+    --pen-soft: #2e1a1e;
+    --amber: #e9b04a;
+    --amber-soft: #2a2314;
+    --mark: #6199d6;
+    --mark-soft: #1a2837;
+    --mark-ink: #a9c9ee;
+    --focus: #8ab4ff;
+    --shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.7);
+  }
+}
+
+:root[data-theme="dark"] {
+  --paper: #101713;
+  --sheet: #17211b;
+  --sunk: #0c120f;
+  --ink: #e6eee6;
+  --ink-2: #b0bfb3;
+  --ink-3: #8fa093;
+  --rule: #2c3a31;
+  --rule-strong: #56695b;
+  --control: #687d70;
+  --primary: #74c7a0;
+  --primary-hover: #8ad4b1;
+  --primary-ink: #0b1510;
+  --pen: #ff8a98;
+  --pen-mark: #e85a6c;
+  --pen-soft: #2e1a1e;
+  --amber: #e9b04a;
+  --amber-soft: #2a2314;
+  --mark: #6199d6;
+  --mark-soft: #1a2837;
+  --mark-ink: #a9c9ee;
+  --focus: #8ab4ff;
+  --shadow: 0 1px 0 rgb(0 0 0 / 0.3), 0 10px 28px -14px rgb(0 0 0 / 0.7);
+}

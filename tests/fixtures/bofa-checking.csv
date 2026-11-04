@@ -1,0 +1,13 @@
+Description,,Summary Amt.
+Beginning balance as of 01/01/2026,,"2,500.00"
+Total credits,,"3,200.00"
+Total debits,,"-1,100.45"
+Ending balance as of 01/31/2026,,"4,599.55"
+
+Date,Description,Amount,Running Bal.
+01/01/2026,Beginning balance as of 01/01/2026,,"2,500.00"
+01/03/2026,"NETFLIX.COM 866-579-7172 CA",-15.49,"2,484.51"
+01/05/2026,"PAYROLL ACME INC DES:DIRECT DEP ID:XXXXX",3200.00,"5,684.51"
+01/09/2026,"CHECKCARD 0108 SPOTIFY USA 877-7781161 NY",-11.99,"5,672.52"
+01/15/2026,"Zelle payment to ALEX",-1073.00,"4,599.52"
+01/31/2026,Ending balance as of 01/31/2026,,"4,599.52"

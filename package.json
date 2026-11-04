@@ -1,0 +1,23 @@
+{
+  "name": "stillbilled",
+  "version": "1.0.0",
+  "description": "Find recurring charges, price increases and double charges in your bank export. Runs entirely in the browser.",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check-site.mjs",
+    "serve": "node scripts/serve.mjs",
+    "test:e2e": "node tests/e2e/run.mjs",
+    "verify": "npm test && npm run build && npm run check"
+  },
+  "devDependencies": {
+    "axe-core": "^4.14.0",
+    "playwright": "^1.63.0"
+  }
+}

@@ -1,0 +1,24 @@
+# Build output and dependencies
+node_modules/
+dist/
+
+# Local files that must never be committed
+.env
+.env.*
+*.local
+.DS_Store
+Thumbs.db
+
+# Editor and OS
+.vscode/
+.idea/
+*.swp
+
+# Test artifacts
+test-results/
+playwright-report/
+tests/e2e/.out/
+
+# Real bank exports: never commit your own statements
+*.private.csv
+my-statements/

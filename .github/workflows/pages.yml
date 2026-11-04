@@ -1,0 +1,58 @@
+# Publishes the site to GitHub Pages whenever main changes (or when run by hand).
+#
+# One-time setup in the repository: Settings > Pages > Build and deployment > Source: GitHub Actions.
+# The site needs no secrets. The unit tests and site checker run first, so a broken build is never published.
+
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deployment finish rather than cancelling it halfway, and queue at most one newer run.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      # The unit tests, build and checker use only Node's own modules, so there is nothing to install here.
+      - name: Unit tests
+        run: npm test
+
+      # GITHUB_REPOSITORY is set by Actions; the build uses it for the "Source code" link in the footer.
+      - name: Build
+        run: npm run build
+
+      - name: Check the built site
+        run: npm run check
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

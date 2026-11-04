@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Stillbilled: find forgotten subscriptions and price hikes in your bank export</title>
+  <meta name="description" content="Drop in a bank or card export (CSV, OFX, QFX or QIF) and see every recurring charge, what quietly went up in price, and what was charged twice. Runs in your browser. Nothing is uploaded.">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' blob:; font-src 'self'; connect-src 'none'; base-uri 'none'; form-action 'none'; object-src 'none'">
+  <meta name="referrer" content="no-referrer">
+  <meta name="color-scheme" content="light dark">
+  <meta name="theme-color" content="#f1f5ec" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#101713" media="(prefers-color-scheme: dark)">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Stillbilled: find forgotten subscriptions and price hikes">
+  <meta property="og:description" content="Local-only audit of your bank export. Recurring charges, price increases and double charges. No login, no upload.">
+  <meta name="twitter:card" content="summary">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="assets/fonts/zilla-slab-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/public-sans-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/print.css" media="print">
+  <script src="js/ui/theme-init.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to the tool</a>
+
+  <header class="masthead">
+    <div class="wrap masthead-inner">
+      <a class="brand" href="./" aria-label="Stillbilled, start page">
+        <svg class="brand-mark" viewBox="0 0 32 32" width="30" height="30" aria-hidden="true" focusable="false">
+          <rect width="32" height="32" rx="7" fill="currentColor"/>
+          <path d="M7 11.5h18M7 17h18M7 22.5h11" stroke="var(--paper)" stroke-opacity="0.55" stroke-width="1.6" stroke-linecap="round" fill="none"/>
+          <path d="M17.5 21.5l3.6 3.6L27 16.5" stroke="var(--paper)" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+        </svg>
+        <span>Stillbilled</span>
+      </a>
+      <nav class="site-nav" aria-label="Site">
+        <a href="#how">How it decides</a>
+        <a href="#privacy">Privacy</a>
+        <button id="theme-toggle" class="btn btn-quiet btn-small" type="button"></button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" tabindex="-1">
+    <noscript>
+      <div class="wrap"><p class="note">Stillbilled reads your file with JavaScript in this tab, so it needs JavaScript turned on. Nothing is sent anywhere.</p></div>
+    </noscript>
+
+    <section id="start" class="start wrap" aria-labelledby="start-title">
+      <div class="start-copy">
+        <h1 id="start-title">Find the charges you forgot to stop</h1>
+        <p class="lede">Drop in a bank or card export. Stillbilled lists what repeats, what quietly got more expensive, and what was charged twice.</p>
+
+        <div id="dropzone" class="dropzone" aria-describedby="drop-help">
+          <p class="drop-title">
+            <svg class="icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 3h7l4 4v14H7zM14 3v4h4"/></svg>
+            Drop your statement files here
+          </p>
+          <p id="drop-help" class="drop-help">CSV, OFX, QFX or QIF. Add several accounts and they are combined. A year or more finds yearly charges.</p>
+          <div class="drop-actions">
+            <button id="choose" class="btn" type="button">Choose files</button>
+            <button id="sample" class="btn btn-secondary" type="button">Try it with sample data</button>
+          </div>
+          <input id="file-input" class="sr-only" type="file" multiple accept=".csv,.ofx,.qfx,.qif,.json,.txt,text/csv,text/plain,application/json" tabindex="-1" aria-label="Choose statement files">
+        </div>
+
+        <p class="privacy-line">
+          <svg class="icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M7 11V8a5 5 0 0110 0v3M5 11h14v9H5z"/></svg>
+          <span>Your files are read in this tab and never uploaded. No account, no tracking. <a href="#privacy">How to check that</a>.</span>
+        </p>
+
+        <div id="start-errors" class="messages" role="alert"></div>
+
+        <details class="export-help">
+          <summary>Where do I get the file?</summary>
+          <div class="export-help-body">
+            <ol>
+              <li>Sign in to your bank or card issuer in a web browser.</li>
+              <li>Open the account and look for <em>Download</em>, <em>Export</em> or <em>Statements</em>. It is usually near the transaction list.</li>
+              <li>Choose <strong>CSV</strong>. <strong>OFX</strong>, <strong>QFX</strong> and <strong>QIF</strong> also work. PDF statements cannot be read.</li>
+              <li>Pick the longest date range offered. Twelve months or more is best, because yearly charges only show up if a year is covered.</li>
+              <li>Repeat for each account or card, then add all the files together.</li>
+            </ol>
+            <p>Menu names differ between banks and change over time. If your bank offers several CSV layouts, any of them should work. Stillbilled recognises common layouts from Chase, Capital One, American Express and Bank of America, and works out the columns for others.</p>
+          </div>
+        </details>
+      </div>
+
+      <figure class="specimen">
+        <div class="specimen-sheet" aria-hidden="true">
+          <ul class="ledger">
+            <li class="row row-static" data-decision="">
+              <div class="row-mark"></div>
+              <div class="row-main-static"><span class="row-name">Netflix</span><span class="row-meta">Monthly, last charged Oct 5</span></div>
+              <div class="row-figures"><span class="row-amount num">$17.99</span><span class="row-flag flag-up">up from $15.49</span></div>
+              <div class="row-year"><span class="row-year-value num">$216 a year</span><span class="bar"><span class="bar-fill specimen-w-90"></span></span></div>
+            </li>
+            <li class="row row-static" data-decision="cancel">
+              <div class="row-mark"><svg class="icon" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" focusable="false"><path d="M6 6l12 12M18 6L6 18"/></svg></div>
+              <div class="row-main-static"><span class="row-name">Planet Fitness</span><span class="row-meta">Monthly, last charged Oct 28</span></div>
+              <div class="row-figures"><span class="row-amount num">$24.99</span></div>
+              <div class="row-year"><span class="row-year-value num">$300 a year</span><span class="bar"><span class="bar-fill specimen-w-100"></span></span></div>
+            </li>
+            <li class="row row-static" data-decision="">
+              <div class="row-mark"></div>
+              <div class="row-main-static"><span class="row-name">Bistro North</span><span class="row-meta">Charged twice on Sep 14</span></div>
+              <div class="row-figures"><span class="row-amount num">$62.40</span><span class="row-flag flag-double">possible double charge</span></div>
+              <div class="row-year"><span class="row-year-value num">$62 extra</span></div>
+            </li>
+          </ul>
+        </div>
+        <figcaption>What you get, with made-up data: Netflix went up $2.50 a month, one subscription is marked to cancel, and a restaurant charged the same amount twice in a day.</figcaption>
+      </figure>
+    </section>
+
+    <div id="results" class="results wrap" hidden></div>
+  </main>
+
+  <section id="how" class="info wrap" aria-labelledby="how-title">
+    <h2 id="how-title">How it decides</h2>
+    <div class="info-grid">
+      <div class="prose">
+        <p>Stillbilled does not know which charges are subscriptions. It looks for a pattern and shows you the evidence, so you can judge.</p>
+        <ul>
+          <li><strong>Same merchant, same amount, regular rhythm.</strong> Charges are grouped by a cleaned-up merchant name. A group counts as recurring when the amount (within 1% or 10 cents) comes back weekly, every two weeks, monthly, every two months, quarterly, every six months or yearly. A few days either way are allowed for weekends, and one skipped cycle is forgiven.</li>
+          <li><strong>Price increases.</strong> The rhythm continues but the amount went up by more than 2% (and at least 20 cents). Stillbilled shows the old price, the new price, and what the difference costs over a year.</li>
+          <li><strong>Possible double charges.</strong> The same merchant and exactly the same amount, at least 10 in your currency, within three days, and not part of a regular pattern. If a matching refund shows up within three weeks, it is marked as refunded.</li>
+          <li><strong>Still going or stopped.</strong> A charge counts as stopped when its next payment is well overdue as of the newest transaction in your files.</li>
+        </ul>
+      </div>
+      <div class="prose">
+        <h3>What it cannot do</h3>
+        <ul>
+          <li>It can be wrong. A gas station you visit every four weeks and pay about the same each time can look like a subscription. Every finding lists the charges behind it, and you can mark anything as ignore.</li>
+          <li>It cannot see inside a merchant. Several subscriptions billed through one name, such as an app store, are separated only when their prices or dates differ.</li>
+          <li>It reads one currency at a time and never converts.</li>
+          <li>It cannot read PDF statements or cancel anything for you.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="privacy" class="info wrap" aria-labelledby="privacy-title">
+    <h2 id="privacy-title">Privacy, and how to check it</h2>
+    <div class="info-grid">
+      <div class="prose">
+        <p>Your statements stay on your device. This page has no server behind it: the files you add are read by JavaScript in this browser tab and never uploaded.</p>
+        <ul>
+          <li>The page tells your browser not to let its scripts connect to any server, or load anything from another site. That rule is in the page source, so you can read it.</li>
+          <li>There are no accounts, cookies, analytics, adverts or outside fonts and scripts.</li>
+          <li>The only thing saved in your browser is your light or dark theme choice. Close the tab and your data is gone.</li>
+          <li>A session file you save is a plain list of your transactions. Treat it like the statement itself.</li>
+        </ul>
+      </div>
+      <div class="prose">
+        <h3>Check it yourself</h3>
+        <ol>
+          <li>Open your browser's developer tools and switch to the Network tab.</li>
+          <li>Add a file or use the sample data. No new requests appear.</li>
+          <li>Or turn off your internet connection after the page has loaded. It keeps working.</li>
+        </ol>
+        <p>The page itself is delivered by its host like any website, so the host can see that someone loaded it. It never sees your files.</p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Stillbilled is free and open source under the MIT license. It is a tool for reading your own records, not financial advice.</p>
+      <p id="repo-link-slot"></p>
+    </div>
+  </footer>
+
+  <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+  <div id="live" class="sr-only" role="status" aria-live="polite"></div>
+  <dialog id="dialog" class="dialog" aria-labelledby="dialog-title"></dialog>
+
+  <script type="module" src="js/ui/app.js"></script>
+</body>
+</html>
