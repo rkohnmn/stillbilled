@@ -37,9 +37,11 @@ export function effectiveTotals(analysis, decisions = {}) {
   t.monthlyCents = Math.round(t.annualCents / 12);
   for (const d of analysis.doubles) {
     const st = status(decisions, d.id);
-    if (d.refunded || st === 'ignore' || st === 'keep') continue;
+    if (st === 'ignore' || st === 'keep') continue;
+    const outstanding = d.outstandingExtraCents !== undefined ? d.outstandingExtraCents : (d.refunded ? 0 : d.extraCents);
+    if (outstanding <= 0) continue;
     t.doubleCount++;
-    t.doubleExtraCents += d.extraCents;
+    t.doubleExtraCents += outstanding;
   }
   return t;
 }

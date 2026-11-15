@@ -127,6 +127,17 @@ const errorRecord = (id, name, size, message) => ({
   error: { message, code: 'read' },
 });
 
+async function computeSha256(arrayBuffer) {
+  try {
+    if (typeof crypto !== 'undefined' && crypto.subtle) {
+      const hashBuffer = await crypto.subtle.digest('SHA-256', arrayBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch {}
+  return null;
+}
+
 async function addFiles(fileList) {
   const list = [...fileList];
   if (!list.length) return;
@@ -135,7 +146,9 @@ async function addFiles(fileList) {
   await paintFrame();
   const repeats = [];
   for (const file of list) {
-    if (state.files.some((f) => !f.error && f.name === file.name && f.size === file.size)) {
+    const rawBuffer = await file.arrayBuffer();
+    const sha256 = await computeSha256(rawBuffer);
+    if (state.files.some((f) => !f.error && f.name === file.name && f.size === file.size && (f.sha256 && sha256 ? f.sha256 === sha256 : true))) {
       repeats.push(file.name);
       continue;
     }
@@ -145,9 +158,10 @@ async function addFiles(fileList) {
       continue;
     }
     try {
-      const { text, encoding } = decodeBytes(await file.arrayBuffer());
+      const { text, encoding } = decodeBytes(rawBuffer);
       await paintFrame();
       const rec = ingestText({ id, name: file.name, text, size: file.size, encoding, locale: state.locale });
+      rec.sha256 = sha256;
       state.files.push(rec);
       if (rec.session) Object.assign(state.decisions, rec.session.decisions);
     } catch (e) {
@@ -248,7 +262,7 @@ Object.assign(ctx.actions, {
   setFileOption(id, opts) {
     const rec = findFile(id);
     if (!rec) return;
-    state.files = state.files.map((f) => (f.id === id ? { ...reingest(rec, opts, state.locale), sample: rec.sample } : f));
+    state.files = state.files.map((f) => (f.id === id ? { ...reingest(rec, opts, state.locale), sample: rec.sample, sha256: rec.sha256 } : f));
     recompute();
     render();
     announce('File read again with the new setting.');
@@ -259,7 +273,7 @@ Object.assign(ctx.actions, {
     if (!rec || !rec.rows) return;
     const opts = await columnsDialog(ctx, rec);
     if (!opts) return;
-    state.files = state.files.map((f) => (f.id === id ? { ...reingest(rec, opts, state.locale), sample: rec.sample } : f));
+    state.files = state.files.map((f) => (f.id === id ? { ...reingest(rec, opts, state.locale), sample: rec.sample, sha256: rec.sha256 } : f));
     recompute();
     render({ focusResults: hasData() });
     const updated = findFile(id);

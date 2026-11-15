@@ -98,7 +98,9 @@ function doubleDetail(ctx, d) {
     h('div', {},
       h('h3', {}, 'What to do'),
       h('p', {}, d.refunded
-        ? `A refund of ${fmt.money(d.refunded.cents)} from this merchant appeared on ${fmt.date(d.refunded.date)}, so this was probably already put right. It is not counted in the totals.`
+        ? (d.refunded.status === 'partial'
+          ? `A partial refund of ${fmt.money(d.refunded.cents)} from this merchant appeared on ${fmt.date(d.refunded.date)}, leaving ${fmt.money(d.outstandingExtraCents)} unresolved.`
+          : `A refund of ${fmt.money(d.refunded.cents)} from this merchant appeared on ${fmt.date(d.refunded.date)}, so this was probably already put right. It is not counted in the totals.`)
         : 'Look at these charges in your bank\'s transaction list. Two identical purchases can be real. If one was a mistake, ask the merchant for a refund, and if they do not answer, dispute it with your bank.'),
       facts([
         ['Extra if it was a mistake', fmt.money(d.extraCents)],
@@ -173,7 +175,10 @@ export function doubleRow(ctx, d) {
     ? `Charged ${d.count === 2 ? 'twice' : `${d.count} times`} on ${fmt.date(d.charges[0].date)}`
     : `Charged on ${[...d.charges.slice(0, -1).map((c) => fmt.dateShort(c.date)), fmt.date(d.charges[d.charges.length - 1].date)].join(' and ')}`;
   const flags = [];
-  if (d.refunded) flags.push(h('span', { class: 'row-flag flag-neutral' }, `refunded ${fmt.dateShort(d.refunded.date)}`));
+  const isFullyRefunded = d.refunded && (d.refunded.status === 'full' || d.outstandingExtraCents === 0);
+  const isPartiallyRefunded = d.refunded && d.refunded.status === 'partial' && d.outstandingExtraCents > 0;
+  if (isFullyRefunded) flags.push(h('span', { class: 'row-flag flag-neutral' }, `refunded ${fmt.dateShort(d.refunded.date)}`));
+  else if (isPartiallyRefunded) flags.push(h('span', { class: 'row-flag flag-double' }, icon('alert', { size: 14 }), `partially refunded (${fmt.money(d.outstandingExtraCents)} extra)`));
   else flags.push(h('span', { class: 'row-flag flag-double' }, icon('alert', { size: 14 }), d.confidence === 'likely' ? 'likely double charge' : 'possible double charge'));
 
   const button = h('button', { type: 'button', class: 'row-main', 'aria-expanded': 'false', 'aria-controls': ex.bodyId },
@@ -186,7 +191,7 @@ export function doubleRow(ctx, d) {
     h('div', { class: 'row-mark', 'aria-hidden': 'true' }),
     button,
     h('div', { class: 'row-figures' }, h('span', { class: 'row-amount num' }, fmt.money(d.cents)), ...flags),
-    h('div', { class: 'row-year' }, h('span', { class: 'row-year-value num' }, d.refunded ? 'refunded' : `${fmt.money(d.extraCents)} extra`)),
+    h('div', { class: 'row-year' }, h('span', { class: 'row-year-value num' }, isFullyRefunded ? 'refunded' : `${fmt.money(d.outstandingExtraCents !== undefined ? d.outstandingExtraCents : d.extraCents)} extra`)),
     h('div', { class: 'row-decide' }, decideGroup(ctx, d.id, 'double', d.name)),
     ex.body,
   );
