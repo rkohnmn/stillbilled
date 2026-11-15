@@ -411,9 +411,11 @@ function totalsOf(active, doubles) {
   }
   t.monthlyCents = Math.round(t.annualCents / 12);
   for (const d of doubles) {
-    if (d.refunded) continue;
-    t.doubleCount++;
-    t.doubleExtraCents += d.extraCents;
+    const outstanding = d.outstandingExtraCents !== undefined ? d.outstandingExtraCents : (d.refunded ? 0 : d.extraCents);
+    if (outstanding > 0) {
+      t.doubleCount++;
+      t.doubleExtraCents += outstanding;
+    }
   }
   return t;
 }
@@ -452,21 +454,37 @@ function findDoubles(groups, credits) {
       for (const r of runs) {
         const lastTx = r[r.length - 1];
         const gap = diffDays(r[0].date, lastTx.date);
-        const refund = (creditsByMerchant.get(g.key) || []).find((c) => {
+        const extraCount = r.length - 1;
+        const totalExtraCents = cents * extraCount;
+        const matchingRefunds = (creditsByMerchant.get(g.key) || []).filter((c) => {
           const d = diffDays(lastTx.date, c.date);
           return d >= 0 && d <= REFUND_WINDOW_DAYS && sameAmount(-c.cents, cents);
         });
+        const matched = matchingRefunds.slice(0, extraCount);
+        const refundCount = matched.length;
+        const refundedCents = refundCount * cents;
+        const outstandingExtraCents = Math.max(0, totalExtraCents - refundedCents);
+        let refundInfo = null;
+        if (refundCount > 0) {
+          refundInfo = {
+            date: matched[0].date,
+            cents: refundedCents,
+            count: refundCount,
+            status: refundCount >= extraCount ? 'full' : 'partial',
+          };
+        }
         out.push({
           id: `${g.key}|${r[0].date}|${cents}`,
           merchantKey: g.key,
           name: g.name,
           cents,
           count: r.length,
-          extraCents: cents * (r.length - 1),
+          extraCents: totalExtraCents,
+          outstandingExtraCents,
           gapDays: gap,
           confidence: gap === 0 && cents >= 1500 ? 'likely' : 'possible',
           charges: r.map((c) => ({ id: c.id, date: c.date, cents: c.cents, desc: c.desc })),
-          refunded: refund ? { date: refund.date, cents: -refund.cents } : null,
+          refunded: refundInfo,
         });
       }
     }

@@ -84,15 +84,13 @@ export function parseAmount(input, decimal = '.') {
   let fracPart = '';
   if (lastDec !== -1) {
     const tail = s.slice(lastDec + 1);
-    // Treat as decimal only if the tail is 1-2 digits (or 0 digits like "12."), otherwise it is a thousands group.
-    if (tail.length <= 2 || (tail.length > 3 && !s.slice(0, lastDec).includes(thou))) {
-      intPart = s.slice(0, lastDec);
-      fracPart = tail;
-    }
+    // Reject excessive decimal precision or ambiguous separator tails
+    if (tail.length > 2) return null;
+    intPart = s.slice(0, lastDec);
+    fracPart = tail;
   }
   intPart = intPart.split(thou).join('').split(dec).join('');
   if (!/^\d*$/.test(intPart) || !/^\d*$/.test(fracPart)) return null;
-  if (fracPart.length > 2) fracPart = fracPart.slice(0, 2); // never expected; avoid silent 3-digit scaling
   const cents = Number(intPart || '0') * 100 + Number((fracPart + '00').slice(0, 2));
   if (!Number.isSafeInteger(cents)) return null;
   const signed = negative ? -cents : cents;

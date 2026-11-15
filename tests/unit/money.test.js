@@ -58,6 +58,9 @@ test('rejects things that are not amounts', () => {
   assert.equal(parseAmount('--'), null);
   assert.equal(parseAmount('12.34.56x'), null);
   assert.equal(parseAmount('N/A'), null);
+  assert.equal(parseAmount('12.3456'), null);
+  assert.equal(parseAmount('1,234.5678'), null);
+  assert.equal(parseAmount('12.345'), null);
 });
 
 test('guards against absurd values', () => {

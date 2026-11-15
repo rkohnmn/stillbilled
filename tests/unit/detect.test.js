@@ -240,6 +240,41 @@ test('a double charge that was refunded is marked and left out of the total', ()
   assert.equal(r.totals.doubleExtraCents, 0);
 });
 
+test('a triple charge with one refund leaves one outstanding extra charge in the total', () => {
+  const t = [
+    tx('2026-10-03', 12817, 'HOME DEPOT #4410'),
+    tx('2026-10-04', 12817, 'HOME DEPOT #4410'),
+    tx('2026-10-05', 12817, 'HOME DEPOT #4410'),
+    tx('2026-10-09', -12817, 'HOME DEPOT RETURN #4410'),
+  ];
+  const r = analyze(t);
+  assert.equal(r.doubles.length, 1);
+  assert.ok(r.doubles[0].refunded);
+  assert.equal(r.doubles[0].refunded.status, 'partial');
+  assert.equal(r.doubles[0].refunded.cents, 12817);
+  assert.equal(r.doubles[0].outstandingExtraCents, 12817);
+  assert.equal(r.totals.doubleCount, 1);
+  assert.equal(r.totals.doubleExtraCents, 12817);
+});
+
+test('a triple charge with two refunds is fully resolved', () => {
+  const t = [
+    tx('2026-10-03', 12817, 'HOME DEPOT #4410'),
+    tx('2026-10-04', 12817, 'HOME DEPOT #4410'),
+    tx('2026-10-05', 12817, 'HOME DEPOT #4410'),
+    tx('2026-10-09', -12817, 'HOME DEPOT RETURN #4410'),
+    tx('2026-10-10', -12817, 'HOME DEPOT RETURN #4410'),
+  ];
+  const r = analyze(t);
+  assert.equal(r.doubles.length, 1);
+  assert.ok(r.doubles[0].refunded);
+  assert.equal(r.doubles[0].refunded.status, 'full');
+  assert.equal(r.doubles[0].refunded.cents, 25634);
+  assert.equal(r.doubles[0].outstandingExtraCents, 0);
+  assert.equal(r.totals.doubleCount, 0);
+  assert.equal(r.totals.doubleExtraCents, 0);
+});
+
 // ---------- overlaps ----------
 
 test('several subscriptions in a category where people double up are grouped', () => {
